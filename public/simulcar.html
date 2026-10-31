@@ -103,9 +103,16 @@
         font-weight: 700;
         font-size: 1.05rem;
         letter-spacing: 0.01em;
+        text-decoration: none;
+        transition: color 0.1s ease;
       }
-      .logo span {
+      .logo:hover {
         color: var(--amber);
+      }
+      .logo:focus-visible {
+        outline: 2px solid var(--teal);
+        outline-offset: 3px;
+        border-radius: 4px;
       }
       .top-nav {
         display: flex;
@@ -486,7 +493,7 @@
   </head>
   <body>
     <header class="top">
-      <div class="logo">Simul<span>Car</span></div>
+      <a class="logo" href="/">Embedil</a>
       <nav class="top-nav">
         <a
           class="nav-link"
@@ -505,7 +512,7 @@
           ><span class="dot"></span>Early build — steering and presets still in
           progress</span
         >
-        <h1>A toy car that drives like it has mass.</h1>
+        <h1>SimulCar — a toy car that drives like it has mass.</h1>
         <p class="lede">
           SimulCar is a Bluetooth-controlled toy car that runs a real physics
           model underneath — drive force, rolling resistance, aerodynamic drag,
