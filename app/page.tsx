@@ -88,7 +88,7 @@ export default function Home() {
 
           <div className="relative mx-auto grid w-full max-w-6xl items-center gap-14 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)] lg:gap-16 lg:py-28">
             <div className="flex flex-col items-start">
-              <p className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 font-mono text-[10px] tracking-[0.18em] text-surface-fg-muted uppercase">
+              <p className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 font-mono text-[10px] tracking-[0.18em] text-surface-fg-muted uppercase shadow-[0_2px_0_0_var(--color-surface-edge)]">
                 <span className="size-1.5 rounded-full bg-surface-fg" />
                 ESP32 · Native ESP-IDF
               </p>
@@ -168,13 +168,13 @@ export default function Home() {
             {CAPABILITIES.map(({ title, body, icon: Icon }, index) => (
               <article
                 key={title}
-                className="rounded-2xl border border-line bg-surface p-5 text-surface-fg transition-colors hover:border-surface-fg/40"
+                className="rounded-2xl border border-line bg-surface p-5 text-surface-fg shadow-[0_4px_0_0_var(--color-surface-edge)] transition-colors hover:border-surface-fg/40"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[10px] tracking-[0.18em] text-surface-fg-muted">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <span className="grid size-9 place-items-center rounded-lg border border-line bg-bg text-surface">
+                  <span className="grid size-9 place-items-center rounded-lg border border-transparent bg-button-primary text-button-primary-text">
                     <Icon />
                   </span>
                 </div>
@@ -188,7 +188,7 @@ export default function Home() {
         </section>
 
         <section className="mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 sm:pb-20">
-          <div className="relative overflow-hidden rounded-2xl border border-line bg-surface px-6 py-10 text-surface-fg shadow-[0_4px_0_0_var(--color-line)] sm:px-10 sm:py-12">
+          <div className="relative overflow-hidden rounded-2xl border border-line bg-surface px-6 py-10 text-surface-fg shadow-[0_4px_0_0_var(--color-surface-edge)] sm:px-10 sm:py-12">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute -top-16 -right-16 size-64 rounded-full bg-surface-fg/10 blur-3xl"

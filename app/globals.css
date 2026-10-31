@@ -6,6 +6,7 @@
   --color-bg: #f2e8cf;
   --color-fg: #111111;
   --color-surface: #386641;
+  --color-surface-edge: #5c8d66;
   --color-surface-fg: #ffffff;
   --color-surface-fg-muted: #ede7d9;
   --color-muted: #666666;
@@ -22,6 +23,7 @@
   --color-bg: var(--color-bg);
   --color-fg: var(--color-fg);
   --color-surface: var(--color-surface);
+  --color-surface-edge: var(--color-surface-edge);
   --color-surface-fg: var(--color-surface-fg);
   --color-surface-fg-muted: var(--color-surface-fg-muted);
   --color-muted: var(--color-muted);
