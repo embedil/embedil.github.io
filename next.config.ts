@@ -8,9 +8,11 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   images: { unoptimized: true },
 
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  // `cacheComponents` implies PPR, and export mode rejects it outright
+  // ("PPR cannot be enabled in export mode"), so it stays off — together with
+  // `partialPrefetching`, which requires `cacheComponents`. Re-enable both only
+  // if this site moves to a host that can run a Next.js server.
+
   turbopack: {
     rules: {
       "*.css": {
