@@ -269,6 +269,58 @@
         letter-spacing: 1px;
       }
 
+      /* RIGHT SIDE WRAPPER (brake + throttle, both under the right hand) */
+      #pedalsPanel {
+        flex: 1 1 0;
+        display: flex;
+        flex-direction: row;
+        min-width: 0;
+        gap: 10px;
+        height: 100%;
+      }
+      #pedalsPanel .pedal-panel {
+        flex: 1 1 0;
+      }
+
+      /* STEERING WHEEL PANEL (LEFT, left hand) */
+      .wheel-panel {
+        flex: 1 1 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 0;
+        height: 100%;
+      }
+      .wheel-track {
+        position: relative;
+        flex: 1 1 auto;
+        width: 100%;
+        max-width: min(100%, 46vh, 320px);
+        aspect-ratio: 1 / 1;
+        margin: auto;
+        background: var(--panel);
+        border: 2px solid var(--border);
+        border-radius: 50%;
+        overflow: hidden;
+        touch-action: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .wheel-track svg {
+        width: 78%;
+        height: 78%;
+        transition: none;
+        will-change: transform;
+      }
+      .wheel-panel.disabled .wheel-track {
+        opacity: 0.35;
+      }
+      #steeringPercent {
+        color: var(--accent);
+      }
+
       /* CENTER PANEL */
       #centerPanel {
         flex: 0 0 auto;
@@ -383,21 +435,55 @@
       </div>
 
       <div id="main">
-        <!-- BRAKE (LEFT) -->
-        <div class="pedal-panel disabled" id="brakePanel">
-          <div class="pedal-label-top">BRAKE</div>
-          <div class="pedal-track" id="brakeTrack">
-            <div class="pedal-ticks">
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-            </div>
-            <div class="pedal-fill" id="brakeFill"></div>
+        <!-- STEERING WHEEL (LEFT, left hand) -->
+        <div class="wheel-panel disabled" id="steeringPanel">
+          <div class="pedal-label-top">STEERING</div>
+          <div class="wheel-track" id="steeringTrack">
+            <svg
+              id="steeringWheelGraphic"
+              viewBox="0 0 120 120"
+              style="color: var(--accent)"
+            >
+              <circle
+                cx="60"
+                cy="60"
+                r="52"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="8"
+              />
+              <circle cx="60" cy="60" r="9" fill="currentColor" />
+              <line
+                x1="60"
+                y1="60"
+                x2="60"
+                y2="16"
+                stroke="currentColor"
+                stroke-width="8"
+                stroke-linecap="round"
+              />
+              <line
+                x1="60"
+                y1="60"
+                x2="24"
+                y2="80"
+                stroke="currentColor"
+                stroke-width="8"
+                stroke-linecap="round"
+              />
+              <line
+                x1="60"
+                y1="60"
+                x2="96"
+                y2="80"
+                stroke="currentColor"
+                stroke-width="8"
+                stroke-linecap="round"
+              />
+            </svg>
           </div>
-          <div class="pedal-value"><span id="brakePercent">0</span>%</div>
-          <div class="pedal-sub">HOLD &amp; DRAG</div>
+          <div class="pedal-value"><span id="steeringPercent">0</span>%</div>
+          <div class="pedal-sub">ROTATE</div>
         </div>
 
         <!-- CENTER -->
@@ -407,24 +493,45 @@
           <div id="telemetry">
             <span>THR<b id="telemThrottle">0%</b></span>
             <span>BRK<b id="telemBrake">0%</b></span>
+            <span>STR<b id="telemSteering">0%</b></span>
           </div>
         </div>
 
-        <!-- THROTTLE (RIGHT) -->
-        <div class="pedal-panel disabled" id="throttlePanel">
-          <div class="pedal-label-top">THROTTLE</div>
-          <div class="pedal-track" id="throttleTrack">
-            <div class="pedal-ticks">
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
+        <!-- BRAKE + THROTTLE (RIGHT, right hand) -->
+        <div id="pedalsPanel">
+          <div class="pedal-panel disabled" id="brakePanel">
+            <div class="pedal-label-top">BRAKE</div>
+            <div class="pedal-track" id="brakeTrack">
+              <div class="pedal-ticks">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+              <div class="pedal-fill" id="brakeFill"></div>
             </div>
-            <div class="pedal-fill" id="throttleFill"></div>
+            <div class="pedal-value"><span id="brakePercent">0</span>%</div>
+            <div class="pedal-sub">HOLD &amp; DRAG</div>
           </div>
-          <div class="pedal-value"><span id="throttlePercent">0</span>%</div>
-          <div class="pedal-sub">HOLD &amp; DRAG</div>
+
+          <div class="pedal-panel disabled" id="throttlePanel">
+            <div class="pedal-label-top">THROTTLE</div>
+            <div class="pedal-track" id="throttleTrack">
+              <div class="pedal-ticks">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+              <div class="pedal-fill" id="throttleFill"></div>
+            </div>
+            <div class="pedal-value">
+              <span id="throttlePercent">0</span>%
+            </div>
+            <div class="pedal-sub">HOLD &amp; DRAG</div>
+          </div>
         </div>
       </div>
     </div>
@@ -462,6 +569,7 @@
         const THROTTLE_UUID = "6d5a0002-8b1f-4f2e-9c3d-1a2b3c4d5e6f";
         const BRAKE_UUID = "6d5a0003-8b1f-4f2e-9c3d-1a2b3c4d5e6f";
         const SPEED_UUID = "6d5a0004-8b1f-4f2e-9c3d-1a2b3c4d5e6f";
+        const STEERING_UUID = "6d5a0005-8b1f-4f2e-9c3d-1a2b3c4d5e6f";
 
         const WRITE_INTERVAL_MS = 30;
 
@@ -472,8 +580,10 @@
         const speedValueEl = document.getElementById("speedValue");
         const brakePanel = document.getElementById("brakePanel");
         const throttlePanel = document.getElementById("throttlePanel");
+        const steeringPanel = document.getElementById("steeringPanel");
         const telemThrottle = document.getElementById("telemThrottle");
         const telemBrake = document.getElementById("telemBrake");
+        const telemSteering = document.getElementById("telemSteering");
 
         // ---- BLE state ----
         const state = {
@@ -482,6 +592,7 @@
           throttleChar: null,
           brakeChar: null,
           speedChar: null,
+          steeringChar: null,
           connected: false,
         };
 
@@ -495,10 +606,12 @@
           connectBtn.classList.toggle("disconnect", connected);
           brakePanel.classList.toggle("disabled", !connected);
           throttlePanel.classList.toggle("disabled", !connected);
+          steeringPanel.classList.toggle("disabled", !connected);
           if (!connected) {
             speedValueEl.textContent = "0";
             brakeCtl.forceZero();
             throttleCtl.forceZero();
+            steeringCtl.forceZero();
           }
         }
 
@@ -507,6 +620,7 @@
           state.throttleChar = null;
           state.brakeChar = null;
           state.speedChar = null;
+          state.steeringChar = null;
           setStatus(false, "Disconnected");
         }
 
@@ -554,6 +668,8 @@
             state.throttleChar = await service.getCharacteristic(THROTTLE_UUID);
             state.brakeChar = await service.getCharacteristic(BRAKE_UUID);
             state.speedChar = await service.getCharacteristic(SPEED_UUID);
+            state.steeringChar =
+              await service.getCharacteristic(STEERING_UUID);
 
             await state.speedChar.startNotifications();
             state.speedChar.addEventListener(
@@ -655,6 +771,9 @@
         const writeBrake = makeWriter(function () {
           return state.brakeChar;
         });
+        const writeSteering = makeWriter(function () {
+          return state.steeringChar;
+        });
 
         // ---- Pedal controller factory ----
         function createPedal(opts) {
@@ -748,6 +867,176 @@
           return { forceZero: forceZero };
         }
 
+        // ---- Steering wheel controller factory ----
+        // Rotary drag control: the whole circular track is the touch
+        // surface. Dragging moves a finger around the center, which spins
+        // the wheel graphic. Value range -100..100 maps to a +-135 degree
+        // lock. Releasing animates the wheel back to center smoothly
+        // rather than snapping, then stops sending once settled.
+        function createSteering(opts) {
+          const wheelWrap = document.getElementById(opts.trackId);
+          const wheelGraphic = document.getElementById(opts.graphicId);
+          const valueEl = document.getElementById(opts.valueId);
+          const telemEl = opts.telemEl;
+          const writeFn = opts.writeFn;
+
+          const MAX_ANGLE = 135; // degrees of lock for -100..100
+          const RETURN_MS = 350; // smooth return-to-center duration
+
+          let dragging = false;
+          let rotation = 0; // current wheel angle, -MAX_ANGLE..MAX_ANGLE
+          let startAngle = 0;
+          let startRotation = 0;
+          let currentValue = 0;
+          let lastSentValue = -1;
+          let intervalId = null;
+          let returnFrame = null;
+
+          function clamp(v, min, max) {
+            return Math.max(min, Math.min(max, v));
+          }
+
+          function angleFromTouch(touch, rect) {
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            return (
+              (Math.atan2(touch.clientY - cy, touch.clientX - cx) * 180) /
+              Math.PI
+            );
+          }
+
+          function normalizeDelta(d) {
+            while (d > 180) d -= 360;
+            while (d < -180) d += 360;
+            return d;
+          }
+
+          function render() {
+            wheelGraphic.style.transform = "rotate(" + rotation + "deg)";
+            valueEl.textContent = currentValue;
+            if (telemEl) telemEl.textContent = currentValue + "%";
+          }
+
+          function setRotation(deg) {
+            rotation = clamp(deg, -MAX_ANGLE, MAX_ANGLE);
+            currentValue = Math.round((rotation / MAX_ANGLE) * 100);
+            render();
+          }
+
+          function startLoop() {
+            if (intervalId) return;
+            intervalId = setInterval(function () {
+              if (!state.connected) return;
+              if (currentValue !== lastSentValue) {
+                lastSentValue = currentValue;
+                writeFn(currentValue);
+              }
+            }, WRITE_INTERVAL_MS);
+          }
+
+          function stopLoop() {
+            if (intervalId) {
+              clearInterval(intervalId);
+              intervalId = null;
+            }
+          }
+
+          function cancelReturnAnim() {
+            if (returnFrame) {
+              cancelAnimationFrame(returnFrame);
+              returnFrame = null;
+            }
+          }
+
+          function animateReturnToZero() {
+            cancelReturnAnim();
+            const startRot = rotation;
+            const startTime = performance.now();
+            function step(now) {
+              const t = Math.min(1, (now - startTime) / RETURN_MS);
+              const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+              setRotation(startRot * (1 - eased));
+              if (t < 1) {
+                returnFrame = requestAnimationFrame(step);
+              } else {
+                returnFrame = null;
+                setRotation(0);
+                stopLoop();
+                lastSentValue = 0;
+                if (state.connected) writeFn(0);
+              }
+            }
+            returnFrame = requestAnimationFrame(step);
+          }
+
+          function forceZero() {
+            dragging = false;
+            cancelReturnAnim();
+            stopLoop();
+            rotation = 0;
+            currentValue = 0;
+            lastSentValue = 0;
+            render();
+            if (state.connected) {
+              writeFn(0);
+            }
+          }
+
+          function onTouchStart(e) {
+            if (!state.connected) return;
+            e.preventDefault();
+            cancelReturnAnim();
+            dragging = true;
+            const rect = wheelWrap.getBoundingClientRect();
+            const touch = e.changedTouches[0];
+            startAngle = angleFromTouch(touch, rect);
+            startRotation = rotation;
+            startLoop();
+          }
+
+          function onTouchMove(e) {
+            if (!dragging) return;
+            e.preventDefault();
+            const rect = wheelWrap.getBoundingClientRect();
+            const touch = e.changedTouches[0];
+            const angle = angleFromTouch(touch, rect);
+            const delta = normalizeDelta(angle - startAngle);
+            setRotation(startRotation + delta);
+          }
+
+          function onTouchEnd(e) {
+            if (!dragging) return;
+            e.preventDefault();
+            dragging = false;
+            animateReturnToZero();
+          }
+
+          wheelWrap.addEventListener("touchstart", onTouchStart, {
+            passive: false,
+          });
+          wheelWrap.addEventListener("touchmove", onTouchMove, {
+            passive: false,
+          });
+          wheelWrap.addEventListener("touchend", onTouchEnd, {
+            passive: false,
+          });
+          wheelWrap.addEventListener("touchcancel", onTouchEnd, {
+            passive: false,
+          });
+
+          render();
+
+          return { forceZero: forceZero };
+        }
+
+        const steeringCtl = createSteering({
+          trackId: "steeringTrack",
+          graphicId: "steeringWheelGraphic",
+          valueId: "steeringPercent",
+          telemEl: telemSteering,
+          writeFn: writeSteering,
+        });
+
         const brakeCtl = createPedal({
           trackId: "brakeTrack",
           fillId: "brakeFill",
@@ -769,6 +1058,7 @@
           if (document.hidden) {
             brakeCtl.forceZero();
             throttleCtl.forceZero();
+            steeringCtl.forceZero();
           }
         });
 
@@ -782,6 +1072,7 @@
           if (e.matches) {
             brakeCtl.forceZero();
             throttleCtl.forceZero();
+            steeringCtl.forceZero();
           }
         }
         if (orientationQuery.addEventListener) {
