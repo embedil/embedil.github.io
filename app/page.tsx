@@ -50,7 +50,7 @@ export default function Home() {
 
           <nav aria-label="Main" className="flex items-center gap-5 sm:gap-7">
             <Link
-              href="/simulcar"
+              href="/simulcar.html"
               className="hidden text-sm text-muted transition-colors hover:text-fg sm:inline"
             >
               Products
@@ -63,7 +63,10 @@ export default function Home() {
             >
               Developer
             </a>
-            <Link href="/simulcar" className={buttonClasses({ size: "md" })}>
+            <Link
+              href="/simulcar.html"
+              className={buttonClasses({ size: "md" })}
+            >
               Explore
               <ArrowUpRight />
             </Link>
@@ -103,7 +106,7 @@ export default function Home() {
 
               <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-3.5">
                 <Link
-                  href="/simulcar"
+                  href="/simulcar.html"
                   className={buttonClasses({ size: "lg" }, "w-full sm:w-auto")}
                 >
                   Explore Products
@@ -206,7 +209,7 @@ export default function Home() {
 
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
                 <Link
-                  href="/simulcar"
+                  href="/simulcar.html"
                   className={buttonClasses({ size: "lg" }, "w-full sm:w-auto")}
                 >
                   Explore Products
@@ -248,7 +251,7 @@ export default function Home() {
             className="flex flex-wrap items-center gap-5"
           >
             <Link
-              href="/simulcar"
+              href="/simulcar.html"
               className="text-sm text-muted transition-colors hover:text-fg"
             >
               Products
