@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Link from "next/link";
 
 import { buttonClasses } from "@/components/button";
@@ -41,28 +42,31 @@ const METRICS = [
   { value: "BLE", label: "control link" },
 ];
 
-const STATUSES = [
+type Status = {
+  state: string;
+  pip: string;
+  items: { title: string; note?: string }[];
+};
+
+const STATUSES: Status[] = [
   {
-    title: "Throttle & brake",
-    state: "live, over Bluetooth LE",
+    state: "Live",
     pip: "bg-surface",
+    items: [
+      { title: "Throttle & brake", note: "over Bluetooth LE" },
+      { title: "Physics engine", note: "drive, drag, rolling, braking" },
+    ],
   },
   {
-    title: "Physics engine",
-    state: "live — drive, drag, rolling resistance, braking",
-    pip: "bg-surface",
-  },
-  {
-    title: "Steering",
-    state: "in progress",
+    state: "In progress",
     pip: "bg-button-secondary animate-pulse",
+    items: [{ title: "Steering" }, { title: "Vehicle presets" }],
   },
   {
-    title: "Vehicle presets",
-    state: "in progress",
-    pip: "bg-button-secondary animate-pulse",
+    state: "Planned",
+    pip: "bg-line",
+    items: [{ title: "Custom car tuning" }],
   },
-  { title: "Custom car tuning", state: "planned", pip: "bg-line" },
 ];
 
 export default function Simulcar() {
@@ -79,11 +83,11 @@ export default function Simulcar() {
           }}
         />
 
-        <div className="relative mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-24">
-          <div className="max-w-2xl">
+        <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)] lg:gap-16">
+          <div className="flex flex-col items-start">
             <p className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 font-mono text-[10px] tracking-[0.18em] text-surface-fg-muted uppercase shadow-[0_2px_0_0_var(--color-surface-edge)]">
               <span className="size-1.5 animate-pulse rounded-full bg-surface-fg" />
-              Early build · steering and presets in progress
+              Early build · In progress
             </p>
 
             <h1 className="mt-5 text-[clamp(2.1rem,7vw,3.6rem)] leading-[1.05] font-semibold tracking-tight text-balance">
@@ -123,112 +127,100 @@ export default function Simulcar() {
             </p>
           </div>
 
-          <div className="mt-12 max-w-3xl">
+          <div className="w-full max-w-md lg:max-w-none">
             <SimulcarDashboard />
           </div>
         </div>
       </section>
 
-      <section
-        id="engine"
-        className="mx-auto w-full max-w-6xl scroll-mt-20 px-5 py-16 sm:px-8 sm:py-20"
-      >
-        <div className="max-w-2xl">
-          <p className="font-mono text-[10px] tracking-[0.18em] text-muted uppercase">
-            Physics engine
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
-            Every step runs on forces, not guesses
-          </h2>
-          <p className="mt-4 text-sm leading-relaxed text-muted text-pretty sm:text-base">
-            Each tick, the firmware integrates Newton&apos;s second law against
-            the clock&apos;s actual elapsed time, not a fixed guess — so the
-            model stays true no matter how the simulation loop jitters.
-          </p>
-        </div>
+      <Band id="engine">
+        <BandHeading
+          eyebrow="Physics engine"
+          title="Every step runs on forces, not guesses"
+        >
+          Each tick, the firmware integrates Newton&apos;s second law against
+          the clock&apos;s actual elapsed time, not a fixed guess — so the model
+          stays true no matter how the simulation loop jitters.
+        </BandHeading>
 
-        <ul className="mt-9 max-w-3xl border-t border-line">
+        <ul className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2">
           {FORCES.map(({ tag, title, body }) => (
-            <li
-              key={tag}
-              className="flex flex-col gap-2 border-b border-line py-5 sm:flex-row sm:gap-6"
-            >
-              <span className="w-24 shrink-0 pt-0.5 font-mono text-[10px] tracking-[0.18em] text-surface uppercase">
+            <li key={tag} className="bg-bg p-5 sm:p-6">
+              <span className="font-mono text-[10px] tracking-[0.18em] text-surface uppercase">
                 {tag}
               </span>
-              <div>
-                <h3 className="text-base font-semibold">{title}</h3>
-                <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-muted">
-                  {body}
-                </p>
-              </div>
+              <h3 className="mt-2 text-base font-semibold">{title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted text-pretty">
+                {body}
+              </p>
             </li>
           ))}
         </ul>
-      </section>
+      </Band>
 
-      <section className="mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 sm:pb-20">
-        <div className="max-w-2xl">
-          <p className="font-mono text-[10px] tracking-[0.18em] text-muted uppercase">
-            Self solving
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
-            It solves for its own top speed
-          </h2>
-          <p className="mt-4 text-sm leading-relaxed text-muted text-pretty sm:text-base">
-            Rather than hard-coding a number, the firmware finds the speed where
-            drag and rolling resistance alone would consume all available power,
-            using a bisection search run on every preset.
-          </p>
-        </div>
+      <Band>
+        <BandHeading
+          eyebrow="Telemetry"
+          title="It solves for its own top speed"
+        >
+          Rather than hard-coding a number, the firmware finds the speed where
+          drag and rolling resistance alone would consume all available power,
+          using a bisection search run on every preset.
+        </BandHeading>
 
-        <div className="mt-9 grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-3">
           {METRICS.map(({ value, label }) => (
             <div
               key={label}
               className="rounded-2xl border border-line bg-surface p-5 text-surface-fg shadow-[0_4px_0_0_var(--color-surface-edge)]"
             >
-              <p className="font-mono text-2xl">{value}</p>
-              <p className="mt-1.5 font-mono text-[10px] tracking-[0.18em] text-surface-fg-muted uppercase">
+              <p className="font-mono text-2xl leading-none">{value}</p>
+              <p className="mt-2.5 font-mono text-[10px] tracking-[0.18em] text-surface-fg-muted uppercase">
                 {label}
               </p>
             </div>
           ))}
         </div>
-      </section>
+      </Band>
 
-      <section className="mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 sm:pb-20">
-        <div className="max-w-2xl">
-          <p className="font-mono text-[10px] tracking-[0.18em] text-muted uppercase">
-            Roadmap
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
-            Presets today, your own car tomorrow
-          </h2>
-          <p className="mt-4 text-sm leading-relaxed text-muted text-pretty sm:text-base">
-            Pick a preset to feel the difference between a heavy sedan and a
-            featherweight go-kart, or — once tuning ships — dial in mass, drag,
-            power and grip yourself and feel the change instantly.
-          </p>
-        </div>
+      <Band>
+        <BandHeading
+          eyebrow="Roadmap"
+          title="Presets today, your own car tomorrow"
+        >
+          Pick a preset to feel the difference between a heavy sedan and a
+          featherweight go-kart, or — once tuning ships — dial in mass, drag,
+          power and grip yourself and feel the change instantly.
+        </BandHeading>
 
-        <ul className="mt-9 flex max-w-2xl flex-col gap-4">
-          {STATUSES.map(({ title, state, pip }) => (
-            <li key={title} className="flex items-start gap-3">
-              <span
-                className={`mt-1.5 size-2 shrink-0 rounded-full ${pip}`}
-                aria-hidden="true"
-              />
-              <div>
-                <p className="text-sm font-semibold">{title}</p>
-                <p className="text-sm leading-relaxed text-muted">{state}</p>
-              </div>
-            </li>
+        <div className="grid gap-8 sm:grid-cols-3">
+          {STATUSES.map(({ state, pip, items }) => (
+            <div key={state}>
+              <p className="flex items-center gap-2 border-b border-line pb-3 font-mono text-[10px] tracking-[0.18em] text-muted uppercase">
+                <span
+                  className={`size-2 shrink-0 rounded-full ${pip}`}
+                  aria-hidden="true"
+                />
+                {state}
+              </p>
+              <ul className="mt-4 flex flex-col gap-3.5">
+                {items.map(({ title, note }) => (
+                  <li key={title}>
+                    <p className="text-sm font-semibold">{title}</p>
+                    {note ? (
+                      <p className="mt-0.5 text-sm leading-relaxed text-muted">
+                        {note}
+                      </p>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
-      </section>
+        </div>
+      </Band>
 
-      <section className="mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 sm:pb-20">
+      <section className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
         <div className="relative overflow-hidden rounded-2xl border border-line bg-surface px-6 py-10 text-surface-fg shadow-[0_4px_0_0_var(--color-surface-edge)] sm:px-10 sm:py-12">
           <div
             aria-hidden="true"
@@ -270,5 +262,43 @@ export default function Simulcar() {
         </div>
       </section>
     </>
+  );
+}
+
+/**
+ * A full-width band with the caption pinned to a narrow left column and the
+ * content filling the rest — the spec-sheet rhythm the page reads in.
+ */
+function Band({ id, children }: { id?: string; children: ReactNode }) {
+  return (
+    <section id={id} className="scroll-mt-20 border-b border-line">
+      <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:items-start lg:gap-x-16">
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function BandHeading({
+  eyebrow,
+  title,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div>
+      <p className="font-mono text-[10px] tracking-[0.18em] text-muted uppercase">
+        {eyebrow}
+      </p>
+      <h2 className="mt-3 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+        {title}
+      </h2>
+      <p className="mt-4 text-sm leading-relaxed text-muted text-pretty sm:text-base">
+        {children}
+      </p>
+    </div>
   );
 }

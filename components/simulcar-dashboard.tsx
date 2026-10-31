@@ -83,61 +83,55 @@ export function SimulcarDashboard() {
   return (
     <div
       aria-hidden="true"
-      className="rounded-2xl border border-line bg-surface p-5 text-surface-fg shadow-[0_4px_0_0_var(--color-surface-edge)] sm:p-6"
+      className="rounded-2xl border border-line bg-surface p-5 text-surface-fg shadow-[0_4px_0_0_var(--color-surface-edge)]"
     >
-      <div className="flex items-baseline justify-between gap-4 font-mono text-[10px] tracking-[0.18em] text-surface-fg-muted uppercase">
+      <div className="flex items-baseline justify-between gap-3 font-mono text-[10px] tracking-[0.18em] text-surface-fg-muted uppercase">
         <span>Simulated run</span>
         <span>preset: street-01</span>
       </div>
 
-      <div className="mt-5 flex flex-wrap items-center gap-x-8 gap-y-6">
-        <div className="w-44 shrink-0">
-          <svg viewBox="0 0 200 110" className="block w-full">
-            <path
-              d="M 15 100 A 85 85 0 0 1 185 100"
-              fill="none"
-              strokeWidth="10"
-              strokeLinecap="round"
-              className="stroke-surface-fg/20"
-            />
-            <path
-              d="M 15 100 A 85 85 0 0 1 185 100"
-              fill="none"
-              strokeWidth="10"
-              strokeLinecap="round"
-              strokeDasharray={ARC_LENGTH}
-              strokeDashoffset={ARC_LENGTH - fraction * ARC_LENGTH}
-              className="stroke-surface-fg"
-            />
-            <line
-              x1="100"
-              y1="100"
-              x2="100"
-              y2="30"
-              strokeWidth="3"
-              strokeLinecap="round"
-              transform={`rotate(${-90 + fraction * 180} 100 100)`}
-              className="stroke-button-secondary"
-            />
-            <circle cx="100" cy="100" r="6" className="fill-button-secondary" />
-          </svg>
-        </div>
+      <svg viewBox="0 0 200 110" className="mx-auto mt-6 block w-full max-w-60">
+        <path
+          d="M 15 100 A 85 85 0 0 1 185 100"
+          fill="none"
+          strokeWidth="10"
+          strokeLinecap="round"
+          className="stroke-surface-fg/20"
+        />
+        <path
+          d="M 15 100 A 85 85 0 0 1 185 100"
+          fill="none"
+          strokeWidth="10"
+          strokeLinecap="round"
+          strokeDasharray={ARC_LENGTH}
+          strokeDashoffset={ARC_LENGTH - fraction * ARC_LENGTH}
+          className="stroke-surface-fg"
+        />
+        <line
+          x1="100"
+          y1="100"
+          x2="100"
+          y2="30"
+          strokeWidth="3"
+          strokeLinecap="round"
+          transform={`rotate(${-90 + fraction * 180} 100 100)`}
+          className="stroke-button-secondary"
+        />
+        <circle cx="100" cy="100" r="6" className="fill-button-secondary" />
+      </svg>
 
-        <div className="min-w-[160px] flex-1">
-          <p className="font-mono text-4xl leading-none sm:text-5xl">
-            {Math.round(frame.speed)}
-            <span className="ml-2 text-sm text-surface-fg-muted">km/h</span>
-          </p>
+      <p className="mt-2 text-center font-mono text-4xl leading-none">
+        {Math.round(frame.speed)}
+        <span className="ml-1.5 text-sm text-surface-fg-muted">km/h</span>
+      </p>
 
-          <div className="mt-5 flex flex-col gap-2.5">
-            <Bar
-              label="throttle"
-              value={frame.throttle}
-              tone="bg-button-secondary"
-            />
-            <Bar label="brake" value={frame.brake} tone="bg-surface-fg/70" />
-          </div>
-        </div>
+      <div className="mt-6 flex flex-col gap-2.5">
+        <Bar
+          label="throttle"
+          value={frame.throttle}
+          tone="bg-button-secondary"
+        />
+        <Bar label="brake" value={frame.brake} tone="bg-surface-fg/70" />
       </div>
     </div>
   );
