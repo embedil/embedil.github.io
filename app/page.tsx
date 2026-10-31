@@ -39,7 +39,7 @@ export default function Home() {
       <header className="sticky top-0 z-50 border-b border-line bg-bg/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
           <Link href="/" className="flex min-w-0 items-center gap-2.5">
-            <BrandMark className="size-7 shrink-0 text-surface" />
+            <BrandMark className="size-7 shrink-0" />
             <span className="truncate text-base font-semibold tracking-tight">
               Embedil
             </span>
@@ -237,7 +237,7 @@ export default function Home() {
       <footer className="border-t border-line">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-5 py-10 sm:px-8 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2.5">
-            <BrandMark className="size-6 text-surface" />
+            <BrandMark className="size-6" />
             <span className="text-sm font-semibold tracking-tight">
               Embedil
             </span>
@@ -322,8 +322,8 @@ function ChipDiagram() {
         </div>
 
         <div className="mt-4 grid place-items-center rounded-xl border border-dashed border-line bg-bg px-4 py-10">
-          <div className="grid size-20 place-items-center rounded-lg border border-surface/25 bg-surface/10 text-surface">
-            <BrandMark className="size-9" />
+          <div className="grid size-20 place-items-center rounded-lg border border-surface/25 bg-surface/10">
+            <ChipIcon className="size-9 text-surface" />
           </div>
           <p className="mt-4 font-mono text-[10px] tracking-[0.2em] text-muted uppercase">
             die · xtensa
@@ -366,9 +366,9 @@ function ArrowUpRight() {
   );
 }
 
-function ChipIcon() {
+function ChipIcon({ className }: { className?: string }) {
   return (
-    <Svg>
+    <Svg className={className}>
       <rect x="7" y="7" width="10" height="10" rx="2" />
       <path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4" />
     </Svg>
@@ -392,7 +392,13 @@ function WrenchIcon() {
   );
 }
 
-function Svg({ children }: { children: ReactNode }) {
+function Svg({
+  children,
+  className = "size-[18px]",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -402,7 +408,7 @@ function Svg({ children }: { children: ReactNode }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      className="size-[18px]"
+      className={className}
     >
       {children}
     </svg>
