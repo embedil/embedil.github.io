@@ -1,1 +1,36 @@
 @import "tailwindcss";
+
+/* Single-mode color palette. Values are placeholders to be tuned.
+   Use with Tailwind classes like bg-surface, text-fg, border-line. */
+:root {
+  --color-bg: #f2e8cf;
+  --color-fg: #111111;
+  --color-surface: #386641;
+  --color-surface-fg: #ffffff;
+  --color-surface-fg-muted: #c0c0c0;
+  --color-muted: #666666;
+  --color-line: #cbc4b3;
+  --color-button-primary: #6a994e;
+  --color-button-primary-edge: #62864e;
+  --color-button-primary-text: #ffffff;
+  --color-button-secondary: #a7c957;
+  --color-button-secondary-edge: #97b74e;
+  --color-button-secondary-text: #ffffff;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-fg: var(--color-fg);
+  --color-surface: var(--color-surface);
+  --color-surface-fg: var(--color-surface-fg);
+  --color-surface-fg-muted: var(--color-surface-fg-muted);
+  --color-muted: var(--color-muted);
+  --color-line: var(--color-line);
+  --color-accent: var(--color-accent);
+  --color-button-primary: var(--color-button-primary);
+  --color-button-primary-edge: var(--color-button-primary-edge);
+  --color-button-primary-text: var(--color-button-primary-text);
+  --color-button-secondary: var(--color-button-secondary);
+  --color-button-secondary-edge: var(--color-button-secondary-edge);
+  --color-button-secondary-text: var(--color-button-secondary-text);
+}
