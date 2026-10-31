@@ -333,19 +333,32 @@
         justify-content: center;
         gap: 4px;
       }
-      #speedValue {
-        font-size: min(20vw, 110px);
-        font-weight: 800;
-        line-height: 1;
-        font-variant-numeric: tabular-nums;
-        color: var(--text);
-        text-shadow: 0 0 18px rgba(46, 168, 255, 0.35);
+      #speedGauge {
+        width: min(85%, 46vh, 360px);
+        aspect-ratio: 1 / 1;
+        margin: auto;
+        overflow: visible;
       }
-      #speedUnit {
-        font-size: 16px;
-        letter-spacing: 4px;
-        color: var(--muted);
-        margin-top: 2px;
+      #needleGroup {
+        transition: none;
+      }
+      #needleGroup line {
+        filter: drop-shadow(0 0 4px rgba(46, 168, 255, 0.55));
+      }
+      #speedDigital {
+        font-variant-numeric: tabular-nums;
+      }
+      .gauge-tick {
+        stroke: var(--muted);
+      }
+      .gauge-tick.major {
+        stroke: var(--text);
+      }
+      .gauge-label {
+        fill: var(--muted);
+        font-size: 9px;
+        text-anchor: middle;
+        font-variant-numeric: tabular-nums;
       }
       #telemetry {
         display: flex;
@@ -488,8 +501,63 @@
 
         <!-- CENTER -->
         <div id="centerPanel">
-          <div id="speedValue">0</div>
-          <div id="speedUnit">KM/H</div>
+          <svg id="speedGauge" viewBox="0 0 200 200">
+            <g id="gaugeTicks"></g>
+            <path
+              id="gaugeTrack"
+              fill="none"
+              stroke="var(--border)"
+              stroke-width="10"
+              stroke-linecap="round"
+            />
+            <path
+              id="gaugeRedline"
+              fill="none"
+              stroke="var(--brake)"
+              stroke-width="10"
+              stroke-linecap="round"
+            />
+            <g id="needleGroup">
+              <line
+                x1="100"
+                y1="100"
+                x2="100"
+                y2="34"
+                stroke="var(--accent)"
+                stroke-width="4"
+                stroke-linecap="round"
+              />
+            </g>
+            <circle
+              cx="100"
+              cy="100"
+              r="9"
+              fill="var(--panel)"
+              stroke="var(--border)"
+              stroke-width="2"
+            />
+            <text
+              id="speedDigital"
+              x="100"
+              y="149"
+              text-anchor="middle"
+              font-size="26"
+              font-weight="800"
+              fill="var(--text)"
+            >
+              0
+            </text>
+            <text
+              x="100"
+              y="165"
+              text-anchor="middle"
+              font-size="9"
+              letter-spacing="2"
+              fill="var(--muted)"
+            >
+              KM/H
+            </text>
+          </svg>
           <div id="telemetry">
             <span>THR<b id="telemThrottle">0%</b></span>
             <span>BRK<b id="telemBrake">0%</b></span>
@@ -573,11 +641,22 @@
 
         const WRITE_INTERVAL_MS = 30;
 
+        // ---- Speedometer config ----
+        const MAX_SPEED = 200; // kph, needle and readout are camped to this
+        const SPEED_NOTIFY_MS = 200; // how often the BLE device sends speed
+        const GAUGE_START_ANGLE = 135; // deg, clockwise from 3 o'clock (lower-left, 0 kph)
+        const GAUGE_SWEEP = 270; // deg, total sweep from 0 to MAX_SPEED
+        const REDLINE_FROM = 170; // kph, start of the red zone near max
+
         // ---- DOM refs ----
         const connectBtn = document.getElementById("connectBtn");
         const statusDot = document.getElementById("statusDot");
         const statusText = document.getElementById("statusText");
-        const speedValueEl = document.getElementById("speedValue");
+        const needleGroup = document.getElementById("needleGroup");
+        const speedDigitalEl = document.getElementById("speedDigital");
+        const gaugeTicksG = document.getElementById("gaugeTicks");
+        const gaugeTrackPath = document.getElementById("gaugeTrack");
+        const gaugeRedlinePath = document.getElementById("gaugeRedline");
         const brakePanel = document.getElementById("brakePanel");
         const throttlePanel = document.getElementById("throttlePanel");
         const steeringPanel = document.getElementById("steeringPanel");
@@ -608,7 +687,7 @@
           throttlePanel.classList.toggle("disabled", !connected);
           steeringPanel.classList.toggle("disabled", !connected);
           if (!connected) {
-            speedValueEl.textContent = "0";
+            setSpeedImmediate(0);
             brakeCtl.forceZero();
             throttleCtl.forceZero();
             steeringCtl.forceZero();
@@ -725,11 +804,153 @@
           }
         });
 
+        // ---- Analog speed gauge ----
+        // The BLE device only notifies a new speed every ~SPEED_NOTIFY_MS,
+        // so snapping the needle straight to each new value looks jerky.
+        // Instead we keep a "displayed" speed that is continuously tweened
+        // from wherever it currently is toward the latest target value over
+        // SPEED_NOTIFY_MS, via requestAnimationFrame, so the needle sweeps
+        // smoothly rather than jumping every time a notification arrives.
+        function polarPoint(cx, cy, r, angleDeg) {
+          const rad = (angleDeg * Math.PI) / 180;
+          return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+        }
+
+        function describeArc(cx, cy, r, startAngle, endAngle) {
+          const start = polarPoint(cx, cy, r, startAngle);
+          const end = polarPoint(cx, cy, r, endAngle);
+          const largeArc = endAngle - startAngle <= 180 ? 0 : 1;
+          return (
+            "M " +
+            start.x +
+            " " +
+            start.y +
+            " A " +
+            r +
+            " " +
+            r +
+            " 0 " +
+            largeArc +
+            " 1 " +
+            end.x +
+            " " +
+            end.y
+          );
+        }
+
+        function angleForSpeed(speed) {
+          return GAUGE_START_ANGLE + (speed / MAX_SPEED) * GAUGE_SWEEP;
+        }
+
+        function buildGauge() {
+          const cx = 100,
+            cy = 100,
+            r = 82;
+          gaugeTrackPath.setAttribute(
+            "d",
+            describeArc(cx, cy, r, GAUGE_START_ANGLE, GAUGE_START_ANGLE + GAUGE_SWEEP),
+          );
+          gaugeRedlinePath.setAttribute(
+            "d",
+            describeArc(
+              cx,
+              cy,
+              r,
+              angleForSpeed(REDLINE_FROM),
+              GAUGE_START_ANGLE + GAUGE_SWEEP,
+            ),
+          );
+
+          const STEP = 20;
+          for (let s = 0; s <= MAX_SPEED; s += STEP) {
+            const angle = angleForSpeed(s);
+            const major = s % 40 === 0;
+            const outer = polarPoint(cx, cy, r, angle);
+            const inner = polarPoint(cx, cy, major ? 67 : 73, angle);
+            const tick = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "line",
+            );
+            tick.setAttribute("x1", outer.x);
+            tick.setAttribute("y1", outer.y);
+            tick.setAttribute("x2", inner.x);
+            tick.setAttribute("y2", inner.y);
+            tick.setAttribute("class", "gauge-tick" + (major ? " major" : ""));
+            tick.setAttribute("stroke-width", major ? "2.5" : "1.5");
+            gaugeTicksG.appendChild(tick);
+
+            if (major) {
+              const labelPos = polarPoint(cx, cy, 57, angle);
+              const label = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text",
+              );
+              label.setAttribute("x", labelPos.x);
+              label.setAttribute("y", labelPos.y + 3);
+              label.setAttribute("class", "gauge-label");
+              label.textContent = String(s);
+              gaugeTicksG.appendChild(label);
+            }
+          }
+        }
+        buildGauge();
+
+        let displayedSpeed = 0; // currently rendered (tweened) value
+        let speedAnimFrom = 0;
+        let speedAnimTo = 0;
+        let speedAnimStart = 0;
+        let speedRafId = null;
+
+        function renderNeedle(speed) {
+          // needle is drawn pointing at angle 270 (straight up) by default
+          const angle = angleForSpeed(speed) - 270;
+          needleGroup.setAttribute("transform", "rotate(" + angle + " 100 100)");
+          speedDigitalEl.textContent = String(Math.round(speed));
+        }
+
+        function speedAnimStep(now) {
+          const t = Math.min(1, (now - speedAnimStart) / SPEED_NOTIFY_MS);
+          displayedSpeed = speedAnimFrom + (speedAnimTo - speedAnimFrom) * t;
+          renderNeedle(displayedSpeed);
+          if (t < 1) {
+            speedRafId = requestAnimationFrame(speedAnimStep);
+          } else {
+            speedRafId = null;
+          }
+        }
+
+        // Camps the target to 0..MAX_SPEED and smoothly eases the needle
+        // toward it instead of setting it directly.
+        function setSpeedTarget(newSpeed) {
+          const clamped = Math.max(0, Math.min(MAX_SPEED, newSpeed));
+          speedAnimFrom = displayedSpeed;
+          speedAnimTo = clamped;
+          speedAnimStart = performance.now();
+          if (!speedRafId) {
+            speedRafId = requestAnimationFrame(speedAnimStep);
+          }
+        }
+
+        // Snaps the needle immediately (used on connect/disconnect), no tween.
+        function setSpeedImmediate(newSpeed) {
+          if (speedRafId) {
+            cancelAnimationFrame(speedRafId);
+            speedRafId = null;
+          }
+          const clamped = Math.max(0, Math.min(MAX_SPEED, newSpeed));
+          displayedSpeed = clamped;
+          speedAnimFrom = clamped;
+          speedAnimTo = clamped;
+          renderNeedle(clamped);
+        }
+
+        setSpeedImmediate(0);
+
         function onSpeedNotify(event) {
           const dv = event.target.value; // DataView
           if (!dv || dv.byteLength < 2) return;
           const speed = dv.getUint16(0, true); // little-endian uint16
-          speedValueEl.textContent = String(speed);
+          setSpeedTarget(speed); // camped to MAX_SPEED and tweened in, not set directly
         }
 
         // ---- Serialized write queue per characteristic ----
