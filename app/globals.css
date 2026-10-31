@@ -7,7 +7,7 @@
   --color-fg: #111111;
   --color-surface: #386641;
   --color-surface-fg: #ffffff;
-  --color-surface-fg-muted: #c0c0c0;
+  --color-surface-fg-muted: #ede7d9;
   --color-muted: #666666;
   --color-line: #cbc4b3;
   --color-button-primary: #6a994e;
@@ -26,7 +26,6 @@
   --color-surface-fg-muted: var(--color-surface-fg-muted);
   --color-muted: var(--color-muted);
   --color-line: var(--color-line);
-  --color-accent: var(--color-accent);
   --color-button-primary: var(--color-button-primary);
   --color-button-primary-edge: var(--color-button-primary-edge);
   --color-button-primary-text: var(--color-button-primary-text);

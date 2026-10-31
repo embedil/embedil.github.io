@@ -28,20 +28,21 @@ function cn(...classes: (string | false | null | undefined)[]) {
  * Shared by `Button` and any `<a>`/`<Link>` that should look the same, so links
  * and buttons never drift apart visually.
  */
-export function buttonClasses({
-  variant = "primary",
-  size = "md",
-  className,
-}: {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  className?: string;
-} = {}) {
+export function buttonClasses(
+  {
+    variant = "primary",
+    size = "md",
+  }: {
+    variant?: ButtonVariant;
+    size?: ButtonSize;
+  } = {},
+  className?: string,
+) {
   return cn(
     "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-transparent text-sm font-medium whitespace-nowrap outline-none select-none",
     "shadow-[0_4px_0_0_var(--btn-edge)] transition-[box-shadow,translate] duration-150 ease-out",
     "hover:translate-y-px hover:shadow-[0_3px_0_0_var(--btn-edge)] active:translate-y-[3px] active:shadow-[0_1px_0_0_var(--btn-edge)] active:duration-75",
-    "focus-visible:ring-2 focus-visible:ring-accent/50 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4",
+    "focus-visible:ring-2 focus-visible:ring-surface/60 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4",
     VARIANT_CLASSES[variant],
     SIZE_CLASSES[size],
     className,
@@ -63,7 +64,7 @@ export function Button({
   return (
     <button
       type={type}
-      className={buttonClasses({ variant, size, className })}
+      className={buttonClasses({ variant, size }, className)}
       {...props}
     />
   );
