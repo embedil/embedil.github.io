@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Embedil — ESP32 & native ESP-IDF",
   description:
     "Embedil builds on ESP32 microcontrollers with the native ESP-IDF framework.",
+  icons: {
+    icon: { url: "/favicon.svg", type: "image/svg+xml", sizes: "any" },
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
