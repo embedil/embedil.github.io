@@ -775,6 +775,20 @@
           return state.steeringChar;
         });
 
+        // ---- Multi-touch helper ----
+        // touchmove/touchend events carry EVERY finger currently on the
+        // screen in changedTouches/touches, not just the one that started
+        // on a given element. Each control must track the identifier of
+        // the touch it owns and look it up by id, otherwise two fingers
+        // down at once (e.g. steering + braking) cross-talk and jump to
+        // whichever finger moved last.
+        function findTouchById(touchList, id) {
+          for (let i = 0; i < touchList.length; i++) {
+            if (touchList[i].identifier === id) return touchList[i];
+          }
+          return null;
+        }
+
         // ---- Pedal controller factory ----
         function createPedal(opts) {
           const track = document.getElementById(opts.trackId);
@@ -784,6 +798,7 @@
           const writeFn = opts.writeFn;
 
           let dragging = false;
+          let touchId = null; // identifier of the finger owned by this control
           let currentValue = 0; // live value from finger position
           let lastSentValue = -1;
           let intervalId = null;
@@ -822,6 +837,7 @@
 
           function forceZero() {
             dragging = false;
+            touchId = null;
             stopLoop();
             currentValue = 0;
             lastSentValue = 0;
@@ -833,9 +849,11 @@
 
           function onTouchStart(e) {
             if (!state.connected) return;
+            if (dragging) return; // this control already owns a finger
             e.preventDefault();
-            dragging = true;
             const touch = e.changedTouches[0];
+            touchId = touch.identifier;
+            dragging = true;
             currentValue = valueFromTouch(touch);
             render(currentValue);
             startLoop();
@@ -843,14 +861,17 @@
 
           function onTouchMove(e) {
             if (!dragging) return;
+            const touch = findTouchById(e.changedTouches, touchId);
+            if (!touch) return; // a different finger moved, not ours
             e.preventDefault();
-            const touch = e.changedTouches[0];
             currentValue = valueFromTouch(touch);
             render(currentValue);
           }
 
           function onTouchEnd(e) {
             if (!dragging) return;
+            const touch = findTouchById(e.changedTouches, touchId);
+            if (!touch) return; // a different finger lifted, not ours
             e.preventDefault();
             forceZero();
           }
@@ -884,6 +905,7 @@
           const RETURN_MS = 350; // smooth return-to-center duration
 
           let dragging = false;
+          let touchId = null; // identifier of the finger owned by this control
           let rotation = 0; // current wheel angle, -MAX_ANGLE..MAX_ANGLE
           let startAngle = 0;
           let startRotation = 0;
@@ -971,6 +993,7 @@
 
           function forceZero() {
             dragging = false;
+            touchId = null;
             cancelReturnAnim();
             stopLoop();
             rotation = 0;
@@ -984,11 +1007,13 @@
 
           function onTouchStart(e) {
             if (!state.connected) return;
+            if (dragging) return; // this control already owns a finger
             e.preventDefault();
             cancelReturnAnim();
-            dragging = true;
             const rect = wheelWrap.getBoundingClientRect();
             const touch = e.changedTouches[0];
+            touchId = touch.identifier;
+            dragging = true;
             startAngle = angleFromTouch(touch, rect);
             startRotation = rotation;
             startLoop();
@@ -996,9 +1021,10 @@
 
           function onTouchMove(e) {
             if (!dragging) return;
+            const touch = findTouchById(e.changedTouches, touchId);
+            if (!touch) return; // a different finger moved, not ours
             e.preventDefault();
             const rect = wheelWrap.getBoundingClientRect();
-            const touch = e.changedTouches[0];
             const angle = angleFromTouch(touch, rect);
             const delta = normalizeDelta(angle - startAngle);
             setRotation(startRotation + delta);
@@ -1006,8 +1032,11 @@
 
           function onTouchEnd(e) {
             if (!dragging) return;
+            const touch = findTouchById(e.changedTouches, touchId);
+            if (!touch) return; // a different finger lifted, not ours
             e.preventDefault();
             dragging = false;
+            touchId = null;
             animateReturnToZero();
           }
 
