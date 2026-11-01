@@ -36,6 +36,17 @@ const FORCES = [
   },
 ];
 
+const WHY_CARDS = [
+  {
+    title: "Mass you can't bolt on",
+    body: "Shrink a car and the square-cube law takes its weight with it — no toy chassis behaves like the original. So the model carries a virtual mass instead, and every force answers to it.",
+  },
+  {
+    title: "Momentum, supplied by the model",
+    body: "Without mass, inputs land instantly and the ride feels twitchy. The simulation restores it: speed builds and bleeds off over seconds, as the preset's mass and power dictate.",
+  },
+];
+
 const METRICS = [
   { value: "50 Hz", label: "simulation rate" },
   { value: "<1 ms", label: "per physics step" },
@@ -105,7 +116,7 @@ export default function Simulcar() {
               <span className="text-surface">like it has mass.</span>
             </h1>
 
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted text-pretty sm:text-lg">
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted text-pretty sm:text-lg">
               SimulCar is a Bluetooth-controlled toy car that runs a real
               physics model underneath — drive force, rolling resistance,
               aerodynamic drag, and braking — instead of just mapping a slider
@@ -142,6 +153,30 @@ export default function Simulcar() {
           </div>
         </div>
       </section>
+
+      <Band>
+        <BandHeading eyebrow="Why simulate" title="RC cars are too small...">
+          A real car glides through braking zones and turns because mass and
+          momentum do the work. An RC car has barely any, so everything it does
+          feels twitchy. That feel can't be bolted back onto a toy — so SimulCar
+          supplies it through simulation: the firmware drives a full Newtonian
+          model, and the motors only execute its verdict.
+        </BandHeading>
+
+        <div className="grid gap-4">
+          {WHY_CARDS.map(({ title, body }) => (
+            <div
+              key={title}
+              className="rounded-2xl border border-line bg-surface p-5 text-surface-fg shadow-[0_4px_0_0_var(--color-surface-edge)] sm:p-6"
+            >
+              <h3 className="text-base font-semibold">{title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-surface-fg-muted text-pretty">
+                {body}
+              </p>
+            </div>
+          ))}
+        </div>
+      </Band>
 
       <Band id="engine">
         <BandHeading
