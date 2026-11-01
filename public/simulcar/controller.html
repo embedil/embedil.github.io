@@ -644,6 +644,7 @@
         // ---- Speedometer config ----
         const MAX_SPEED = 200; // kph, needle and readout are camped to this
         const SPEED_NOTIFY_MS = 200; // how often the BLE device sends speed
+        const SPEED_SMOOTH_SAMPLES = 3; // blend across this many recent readings for extra-smooth motion
         const GAUGE_START_ANGLE = 135; // deg, clockwise from 3 o'clock (lower-left, 0 kph)
         const GAUGE_SWEEP = 270; // deg, total sweep from 0 to MAX_SPEED
         const REDLINE_FROM = 170; // kph, start of the red zone near max
@@ -901,6 +902,30 @@
         let speedAnimStart = 0;
         let speedRafId = null;
 
+        // Recent raw readings, oldest first, capped at SPEED_SMOOTH_SAMPLES.
+        // Blending across a few samples (instead of chasing each new raw
+        // value one-for-one) irons out any small jitter between consecutive
+        // BLE notifications, on top of the tween below.
+        let speedHistory = [];
+
+        function blendedTarget(newSpeed) {
+          speedHistory.push(newSpeed);
+          if (speedHistory.length > SPEED_SMOOTH_SAMPLES) {
+            speedHistory.shift();
+          }
+          // Weighted moving average: the newest sample counts most, older
+          // ones taper off, so the target still tracks real changes quickly
+          // while sanding down noise.
+          let sum = 0;
+          let weightTotal = 0;
+          for (let i = 0; i < speedHistory.length; i++) {
+            const weight = i + 1; // 1, 2, 3... newest gets the highest weight
+            sum += speedHistory[i] * weight;
+            weightTotal += weight;
+          }
+          return sum / weightTotal;
+        }
+
         function renderNeedle(speed) {
           // needle is drawn pointing at angle 270 (straight up) by default
           const angle = angleForSpeed(speed) - 270;
@@ -908,40 +933,44 @@
           speedDigitalEl.textContent = String(Math.round(speed));
         }
 
+        // Runs every animation frame (display refresh rate, well above the
+        // ~5 Hz BLE notify rate) so both the needle and the digital readout
+        // glide continuously instead of jumping once per notification.
         function speedAnimStep(now) {
           const t = Math.min(1, (now - speedAnimStart) / SPEED_NOTIFY_MS);
-          displayedSpeed = speedAnimFrom + (speedAnimTo - speedAnimFrom) * t;
+          // ease-out cubic so each new target is approached smoothly rather
+          // than linearly, which also softens the seam where one tween
+          // hands off to the next as new notifications keep arriving.
+          const eased = 1 - Math.pow(1 - t, 3);
+          displayedSpeed = speedAnimFrom + (speedAnimTo - speedAnimFrom) * eased;
           renderNeedle(displayedSpeed);
-          if (t < 1) {
-            speedRafId = requestAnimationFrame(speedAnimStep);
-          } else {
-            speedRafId = null;
-          }
+          speedRafId = requestAnimationFrame(speedAnimStep);
         }
 
-        // Camps the target to 0..MAX_SPEED and smoothly eases the needle
-        // toward it instead of setting it directly.
+        // Camps the target to 0..MAX_SPEED, blends it with recent samples,
+        // and smoothly eases the needle toward it instead of setting it
+        // directly. The rAF loop keeps running continuously (started once,
+        // below) so the readout never stalls between notifications.
         function setSpeedTarget(newSpeed) {
           const clamped = Math.max(0, Math.min(MAX_SPEED, newSpeed));
+          const blended = blendedTarget(clamped);
           speedAnimFrom = displayedSpeed;
-          speedAnimTo = clamped;
+          speedAnimTo = blended;
           speedAnimStart = performance.now();
-          if (!speedRafId) {
-            speedRafId = requestAnimationFrame(speedAnimStep);
-          }
         }
 
         // Snaps the needle immediately (used on connect/disconnect), no tween.
         function setSpeedImmediate(newSpeed) {
-          if (speedRafId) {
-            cancelAnimationFrame(speedRafId);
-            speedRafId = null;
-          }
           const clamped = Math.max(0, Math.min(MAX_SPEED, newSpeed));
+          speedHistory = [];
           displayedSpeed = clamped;
           speedAnimFrom = clamped;
           speedAnimTo = clamped;
+          speedAnimStart = performance.now();
           renderNeedle(clamped);
+          if (!speedRafId) {
+            speedRafId = requestAnimationFrame(speedAnimStep);
+          }
         }
 
         setSpeedImmediate(0);
@@ -950,7 +979,7 @@
           const dv = event.target.value; // DataView
           if (!dv || dv.byteLength < 2) return;
           const speed = dv.getUint16(0, true); // little-endian uint16
-          setSpeedTarget(speed); // camped to MAX_SPEED and tweened in, not set directly
+          setSpeedTarget(speed); // blended across recent samples and tweened in, not set directly
         }
 
         // ---- Serialized write queue per characteristic ----
