@@ -53,19 +53,29 @@ const STATUSES: Status[] = [
     state: "Live",
     pip: "bg-surface",
     items: [
-      { title: "Throttle & brake", note: "over Bluetooth LE" },
+      { title: "Throttle, brake & steering", note: "over Bluetooth LE" },
       { title: "Physics engine", note: "drive, drag, rolling, braking" },
+      { title: "Controller", note: "web app (no installation)" },
     ],
   },
   {
     state: "In progress",
     pip: "bg-button-secondary animate-pulse",
-    items: [{ title: "Steering" }, { title: "Vehicle presets" }],
+    items: [
+      {
+        title: "Vehicle presets",
+        note: "a library of real vehicles",
+      },
+      {
+        title: "Custom car tuning",
+        note: "for experimentation",
+      },
+    ],
   },
   {
     state: "Planned",
     pip: "bg-line",
-    items: [{ title: "Custom car tuning" }],
+    items: [{ title: "Handlng slopes", note: "so it works anywhere" }],
   },
 ];
 
