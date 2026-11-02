@@ -38,12 +38,12 @@ const FORCES = [
 
 const WHY_CARDS = [
   {
-    title: "Mass you can't bolt on",
-    body: "Shrink a car and the square-cube law takes its weight with it — no toy chassis behaves like the original. So the model carries a virtual mass instead, and every force answers to it.",
+    title: "The problem: scale betrays it",
+    body: "Shrink a car and the square-cube law takes its weight with it, so no toy chassis — however well built — behaves like the original. Mass can't be bolted back on; there's no grip or momentum to buy.",
   },
   {
-    title: "Momentum, supplied by the model",
-    body: "Without mass, inputs land instantly and the ride feels twitchy. The simulation restores it: speed builds and bleeds off over seconds, as the preset's mass and power dictate.",
+    title: "The fix: simulate what's missing",
+    body: "SimulCar carries a virtual mass in firmware instead. Every input passes through a Newtonian model first, and the motors only execute its verdict — so speed builds and bleeds off over seconds, the way mass dictates.",
   },
 ];
 
@@ -155,12 +155,14 @@ export default function Simulcar() {
       </section>
 
       <Band>
-        <BandHeading eyebrow="Why simulate" title="RC cars are too small...">
-          A real car glides through braking zones and turns because mass and
-          momentum do the work. An RC car has barely any, so everything it does
-          feels twitchy. That feel can't be bolted back onto a toy — so SimulCar
-          supplies it through simulation: the firmware drives a full Newtonian
-          model, and the motors only execute its verdict.
+        <BandHeading
+          eyebrow="Why simulate"
+          title="Big-car feel, small-car hardware"
+        >
+          Real cars glide through braking zones and corners on the strength of
+          mass and momentum. At toy scale, neither exists — so every input lands
+          instantly and the ride feels twitchy. SimulCar stops fighting hardware
+          and simulates the missing physics instead.
         </BandHeading>
 
         <div className="grid gap-4">
