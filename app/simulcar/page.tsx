@@ -38,12 +38,12 @@ const FORCES = [
 
 const WHY_CARDS = [
   {
-    title: "The problem: scale betrays it",
-    body: "Shrink a car and the square-cube law takes its weight with it, so no toy chassis — however well built — behaves like the original. Mass can't be bolted back on; there's no grip or momentum to buy.",
+    title: "How we solve this",
+    body: "Instead of mapping a slider to a motor, we simulate an actual car inside the SimulCar. When you turn the throttle, the simulated car accelerates. The actual rc car only moves according to the simulation, making it feel like the actual car.",
   },
   {
-    title: "The fix: simulate what's missing",
-    body: "SimulCar carries a virtual mass in firmware instead. Every input passes through a Newtonian model first, and the motors only execute its verdict — so speed builds and bleeds off over seconds, the way mass dictates.",
+    title: "Smooth controls, not ON/OFF",
+    body: "SimulCar controller allows us to map the throttle, brake and steering position smoothly from 0% to 100%. This allows you to control the car more naturally.",
   },
 ];
 
@@ -112,15 +112,14 @@ export default function Simulcar() {
             </p>
 
             <h1 className="mt-5 text-[clamp(2.1rem,7vw,3.6rem)] leading-[1.05] font-semibold tracking-tight text-balance">
-              SimulCar — a toy car that drives{" "}
-              <span className="text-surface">like it has mass.</span>
+              The Simulated RC car,{" "}
+              <span className="text-surface">controlled via Bluetooth</span>
             </h1>
 
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted text-pretty sm:text-lg">
-              SimulCar is a Bluetooth-controlled toy car that runs a real
-              physics model underneath — drive force, rolling resistance,
-              aerodynamic drag, and braking — instead of just mapping a slider
-              to a motor.
+              SimulCar is a Bluetooth-controlled toy car that runs a physics
+              model of a regular sized car underneath. So you get the{" "}
+              <i>feel</i> of driving a larger car.
             </p>
 
             <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-3.5">
@@ -155,14 +154,12 @@ export default function Simulcar() {
       </section>
 
       <Band>
-        <BandHeading
-          eyebrow="Why simulate"
-          title="Big-car feel, small-car hardware"
-        >
-          Real cars glide through braking zones and corners on the strength of
-          mass and momentum. At toy scale, neither exists — so every input lands
-          instantly and the ride feels twitchy. SimulCar stops fighting hardware
-          and simulates the missing physics instead.
+        <BandHeading eyebrow="Why we simulate" title="RC cars are too small">
+          When we scale a car down to 1/10th scale, its mass reduces by a factor
+          of 1,000. But its frontal surface area only drops by a factor of 100.
+          This means that the car experiences more air resistance relative to
+          its weight, making it slow down much faster when coasting than an
+          actual car.
         </BandHeading>
 
         <div className="grid gap-4">
